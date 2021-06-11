@@ -1,0 +1,6 @@
+WESTEUROPE_Standard_A2_v2 /subscriptions/8c0f10b3-e759-4703-857a-f026cc7dbe5f/resourceGroups/ALINA-TEST_RESGRP/providers/Microsoft.Compute/virtualMachines/alina-test-vm
+WESTEUROPE_Standard_A2_v2 /subscriptions/8c0f10b3-e759-4703-857a-f026cc7dbe5f/resourceGroups/ALINA-TEST2_RESGRP/providers/Microsoft.Compute/virtualMachines/alina-test2-vm
+WESTEUROPE_Basic_A1 /subscriptions/e63a6a37-3b43-4c2b-a7dd-01d16d5684f9/resourceGroups/GEA-VM-RESIZE/providers/Microsoft.Compute/virtualMachines/test-vm
+WESTEUROPE_Basic_A1 /subscriptions/e63a6a37-3b43-4c2b-a7dd-01d16d5684f9/resourceGroups/GEA-VM-RESIZE/providers/Microsoft.Compute/virtualMachines/test-vm-2
+WESTEUROPE_Basic_A1 /subscriptions/b70d2e91-aa0d-4a9b-bf80-1caf3f72ea87/resourceGroups/GEA-VM-RESIZE/providers/Microsoft.Compute/virtualMachines/test-vm-3
+WESTEUROPE_Basic_A1 /subscriptions/b70d2e91-aa0d-4a9b-bf80-1caf3f72ea87/resourceGroups/GEA-VM-RESIZE/providers/Microsoft.Compute/virtualMachines/test-vm-4
