@@ -10,18 +10,23 @@ if ( !$SRC_FILE ){
     exit
 }
 
+New-Item -Path ./logs -ItemType Directory -Force
+
 
 $block = {
     Param( $line,
            $log_f)
 
+    
     function Get-VM-PowerStatus {
-
-        #return $vm_power_status = ((get-azvm -Name $vm_name -ResourceGroupName $resource_grp -Status).Statuses | where-object code -like "PowerState*").DisplayStatus
-
-        return $vm_power_status = (az vm get-instance-view --name $vm_name --resource-group $resource_grp --query instanceView.statuses[1].displayStatus) -replace '"', ''
-        
+        param (
+            $vm_nm,
+            $res_grp
+        )
+        $vm_pw_st = (az vm get-instance-view --name $vm_nm --resource-group $res_grp --query instanceView.statuses[1].displayStatus) -replace '"', ''
+        return $vm_pw_st
     }
+    
 
     $old_size = $line.Split()[0]
     $new_size = $old_size.Split("_")[1..3] -join '_'
@@ -39,33 +44,36 @@ $block = {
     "VM current size: $old_size" >> $log_f
     "VM new size: $new_size" >> $log_f
 
-
     az account set -s $subscr_id  >> $log_f 2>&1
     "Stopping virnual machine"  >> $log_f
-
     az vm stop --ids $vm_id >> $log_f 2>&1
     
-    $vm_power_status = Get-VM-PowerStatus
+    $vm_power_status = Get-VM-PowerStatus $vm_name $resource_grp
     
     if ($vm_power_status -eq "VM stopped"){
         "VM has stopped" >> $log_f
+
         "Resizing virnual machine" >> $log_f
         az vm resize --size $new_size --ids $vm_id >> $log_f 2>&1
-    
+        
        "Starting virnual machine" >> $log_f
         az vm start --ids $vm_id >> $log_f 2>&1
-    
-        $vm_power_status = Get-VM-PowerStatus
+            
+        $vm_power_status = Get-VM-PowerStatus $vm_name $resource_grp
+        
         if ($vm_power_status -eq "VM running"){
             "VM has started" >> $log_f
         }
         else {
             "VM could not start"  >> $log_f
+
             "Trying to resize it back" >> $log_f
             az vm resize --size $old_size --ids $vm_id >> $log_f 2>&1
+
             "Starting virnual machine after resizing back" >> $log_f
             az vm start --ids $vm_id >> $log_f 2>&1
-            $vm_power_status = Get-VM-PowerStatus
+            
+            $vm_power_status = Get-VM-PowerStatus $vm_name $resource_grp
             if ($vm_power_status -eq "VM running"){
             "VM has started" >> $log_f
             }
@@ -83,7 +91,7 @@ $cnt = 1
 Get-Content $SRC_FILE | ForEach-Object {
     $log_f = "./logs/resize_vm_$cnt.log"
     While ($(Get-Job -state running).count -ge $MaxThreads){
-        Start-Sleep -Milliseconds 3
+        Start-Sleep -s 5
     }
     Start-Job -Scriptblock $Block -ArgumentList ($_,$log_f)
     $cnt ++
@@ -91,7 +99,7 @@ Get-Content $SRC_FILE | ForEach-Object {
 
 #Wait for all jobs to finish.
 While ($(Get-Job -State Running).count -gt 0){
-    start-sleep 10
+    start-sleep -s 10
 }
 
 #Remove all jobs created.
